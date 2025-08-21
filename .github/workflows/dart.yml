@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1️⃣ Checkout
+      # 1️⃣ Checkout repository
       - uses: actions/checkout@v3
 
       # 2️⃣ Cache dependencies
@@ -35,16 +35,19 @@ jobs:
       # 5️⃣ Forza iOS 14 nel Podfile e aggiorna CocoaPods
       - run: |
           cd ios
-          # Sovrascrive la prima riga del Podfile con platform :ios, '14.0'
+          # forza la piattaforma a iOS 14
           sed -i.bak "1s/.*/platform :ios, '14.0'/" Podfile
           pod repo update
           pod install --repo-update
         shell: bash
 
-      # 6️⃣ Build iOS release (no code signing)
+      # 6️⃣ Seleziona Xcode 15.4 (SDK iOS 17 incluso)
+      - run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      # 7️⃣ Build iOS release (no code signing)
       - run: flutter build ios --release --no-codesign
 
-      # 7️⃣ Create IPA
+      # 8️⃣ Create IPA
       - run: |
           cd build/ios/iphoneos
           mkdir -p Payload
@@ -52,7 +55,7 @@ jobs:
           zip -qr FlutterIpaExport.ipa Payload
         shell: bash
 
-      # 8️⃣ Upload IPA to GitHub Release
+      # 9️⃣ Upload IPA to GitHub Release
       - name: Upload IPA to Release
         uses: svenstaro/upload-release-action@v2
         with:
