@@ -9,8 +9,10 @@ jobs:
     runs-on: macos-14
 
     steps:
+      # 1️⃣ Checkout del repository
       - uses: actions/checkout@v3
 
+      # 2️⃣ Cache delle dipendenze Flutter e Pods
       - name: Cache Flutter dependencies
         uses: actions/cache@v3
         with:
@@ -20,14 +22,17 @@ jobs:
             ios/Podfile.lock
           key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
 
+      # 3️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
 
+      # 4️⃣ Pulizia e installazione dipendenze Flutter
       - run: flutter clean
       - run: flutter pub get
 
+      # 5️⃣ Aggiorna Podfile e installa pods (forza iOS 14)
       - run: |
           cd ios
           sed -i.bak "1s/.*/platform :ios, '14.0'/" Podfile
@@ -35,13 +40,16 @@ jobs:
           pod install --repo-update
         shell: bash
 
+      # 6️⃣ Setup Xcode
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 'latest-stable'
 
+      # 7️⃣ Build iOS release senza code signing
       - run: flutter build ios --release --no-codesign
 
+      # 8️⃣ Prepara cartella Payload e crea IPA
       - run: |
           cd build/ios/iphoneos
           mkdir -p Payload
@@ -49,11 +57,12 @@ jobs:
           zip -qr FlutterIpaExport.ipa Payload
         shell: bash
 
+      # 9️⃣ Carica IPA su release esistente
       - name: Upload IPA to Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/ios/iphoneos/FlutterIpaExport.ipa
-          tag: build-${{ github.run_number }}
+          tag: v1.0        # <-- inserisci qui il tag della tua release esistente
           overwrite: true
           body: "Release build IPA"
