@@ -32,9 +32,11 @@ jobs:
       - run: flutter clean
       - run: flutter pub get
 
-      # 5️⃣ Update CocoaPods
+      # 5️⃣ Forza iOS 14 nel Podfile e aggiorna CocoaPods
       - run: |
           cd ios
+          # Sovrascrive la prima riga del Podfile con platform :ios, '14.0'
+          sed -i.bak "1s/.*/platform :ios, '14.0'/" Podfile
           pod repo update
           pod install --repo-update
         shell: bash
