@@ -17,7 +17,7 @@ class Headertab extends StatelessWidget {
           textAlign: TextAlign.left,
           style: const TextStyle(
             fontSize: 60.0,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.bold,
             color: CupertinoColors.systemGrey,
           ),
         ),
