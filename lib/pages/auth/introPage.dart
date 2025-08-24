@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:registrov2/pages/homePage.dart';
 
 class IntroPage extends StatelessWidget {
   const IntroPage({super.key});
@@ -11,10 +12,10 @@ class IntroPage extends StatelessWidget {
         child: CupertinoButton.filled(
           child: const Text("Inizia"),
           onPressed: () {
-            // Navigator.pushReplacement(
-            //   context,
-            //   CupertinoPageRoute(builder: (_) => const LoginPage()),
-            // );
+            Navigator.pushReplacement(
+              context,
+              CupertinoPageRoute(builder: (_) => const HomePage()),
+            );
           },
         ),
       ),

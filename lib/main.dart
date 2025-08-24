@@ -7,8 +7,8 @@ import 'package:registrov2/pages/splashPage.dart';
 import 'package:registrov2/provider/clientProvider.dart';
 
 void main() {
-  // runApp(DevicePreview(builder: (context) => ProviderScope(child: MyApp())));
-  runApp(ProviderScope(child: MyApp()));
+  runApp(DevicePreview(builder: (context) => ProviderScope(child: MyApp())));
+//   runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerStatefulWidget {

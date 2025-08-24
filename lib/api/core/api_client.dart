@@ -106,7 +106,7 @@ class ApiClient {
       "app_code": "CVVS",
     });
 
-    user.studentId = response["ident"];
+    user.studentId = response["ident"].toString().substring(1);
     user.token = response["token"];
     user.firstName = response["firstName"];
     user.lastName = response["lastName"];

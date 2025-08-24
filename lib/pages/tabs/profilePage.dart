@@ -2,14 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:registrov2/widget/headerTab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:registrov1/provider/clientProvider.dart';
+import 'package:registrov2/provider/clientProvider.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final client = ref.watch(clientProvider);
+
+    final client = ref.watch(clientProvider);
+
 
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
@@ -80,7 +82,7 @@ class ProfilePage extends ConsumerWidget {
                                         ),
                                       ),
                                       Text(
-                                        "Riccardo",
+                                        client.user.firstName != null ? "${client.user.firstName}" : "name not found",
                                         style: TextStyle(
                                           fontSize: 30.0,
                                           fontWeight: FontWeight.w700,
