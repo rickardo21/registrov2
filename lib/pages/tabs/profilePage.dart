@@ -82,7 +82,7 @@ class ProfilePage extends ConsumerWidget {
                                         ),
                                       ),
                                       Text(
-                                        client.user.firstName != null ? "${client.user.firstName}" : "name not found",
+                                        client.user.firstName != null ? "${client.user.firstName}" : "not found",
                                         style: TextStyle(
                                           fontSize: 30.0,
                                           fontWeight: FontWeight.w700,
