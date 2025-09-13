@@ -71,6 +71,12 @@ class ApiClient {
 
   Map<String, dynamic> _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) {
+        throw ApiException(
+          statusCode: response.statusCode,
+          message: "Empty response body",
+        );
+      }
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
       throw ApiException(
@@ -119,7 +125,8 @@ class ApiClient {
   Map<String, String> _headers() {
     final headers = {
       "Content-Type": "application/json",
-      "User-Agent": "CVVS/std/4.2.3 Android/12",
+      //   "User-Agent": "CVVS/std/4.2.3 Android/12",
+      "User-Agent": "CVVS/std/4.2.3 iOS/17",
       "Z-Dev-ApiKey":
           "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
     };
@@ -127,7 +134,6 @@ class ApiClient {
     if (user.token != null) {
       headers["Z-Auth-token"] = user.token!;
     }
-
 
     return headers;
   }

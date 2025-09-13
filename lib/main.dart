@@ -7,7 +7,7 @@ import 'package:registrov2/pages/splashPage.dart';
 import 'package:registrov2/provider/clientProvider.dart';
 
 void main() {
-//   runApp(DevicePreview(builder: (context) => ProviderScope(child: MyApp())));
+  //   runApp(DevicePreview(builder: (context) => ProviderScope(child: MyApp())));
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -26,14 +26,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   }
 
   Future<void> _initializeApp() async {
-    
     final apiClient = ref.read(clientProvider);
     await apiClient.login("S9477262", "Rickardo@07");
-    final user = await apiClient.loadUser();
+    // final user = await apiClient.loadUser();
 
-    if (user != null) {
-      apiClient.user = user;
-    }
+    // if (user != null) {
+    // apiClient.user = user;
+    // }
 
     setState(() {
       _initialized = true;
@@ -51,7 +50,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     return CupertinoApp(
       color: CupertinoColors.secondarySystemBackground,
       debugShowCheckedModeBanner: false,
-      home: user.token == null ? const HomePage() : const IntroPage(),
+      home: user.token != null ? const HomePage() : const IntroPage(),
     );
   }
 }
