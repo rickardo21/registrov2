@@ -9,4 +9,5 @@ class ApiException {
 
     @override
     String toString() => "ApiException ($statusCode): $message";
+
 }

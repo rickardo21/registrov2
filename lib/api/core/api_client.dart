@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:registrov2/api/core/api_exception.dart';
 import 'package:registrov2/api/models/UserModel.dart';
+import 'package:registrov2/utils/debugLogger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
@@ -72,6 +73,7 @@ class ApiClient {
   Map<String, dynamic> _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) {
+        DebugLogger().log("Empty response body");
         throw ApiException(
           statusCode: response.statusCode,
           message: "Empty response body",
@@ -118,6 +120,8 @@ class ApiClient {
     user.lastName = response["lastName"];
     user.tokenAP = response["tokenAP"];
     user.expire = DateTime.parse(response["expire"]);
+
+    DebugLogger().log(response.toString());
 
     await saveSession();
   }

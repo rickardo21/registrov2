@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:registrov2/pages/tabs/profilePage.dart';
+import 'package:registrov2/pages/tabs/settingPage.dart';
 import 'package:registrov2/pages/tabs/todayPage.dart';
 
 class HomePage extends ConsumerWidget {
@@ -48,7 +49,7 @@ class HomePage extends ConsumerWidget {
           case 3:
             return const ProfilePage();
           case 4:
-            return const ProfilePage();
+            return const SettingPage();
           default:
             return const ProfilePage();
         }
