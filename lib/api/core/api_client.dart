@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:registrov2/api/core/api_exception.dart';
@@ -9,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiClient {
   final String baseUrl;
   UserModel user = UserModel();
+
+  final dio = Dio();
 
   // ApiClient({this.baseUrl = "https://web.spaggiari.eu/rest/v1"});
   ApiClient({this.baseUrl = "https://web24.spaggiari.eu/rest/v1"});
@@ -128,26 +131,46 @@ class ApiClient {
   //   }
 
   Future<void> login(String username, String password) async {
-    final http.Response response;
-
     try {
-      final url = Uri.parse('$baseUrl/auth/login');
-      final headers = _headers();
-      final body = {"ident": username, "pass": password, "app_code": "CVVS"};
+      final data = await postWithDio('/auth/login', {
+        'ident': username,
+        'pass': password,
+        'app_code': 'CVVS',
+      });
 
-      response = await http.post(url, headers: headers, body: jsonEncode(body));
-
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-
-      user.studentId = data["ident"].toString();
-      user.token = data["token"];
-      user.firstName = data["firstName"];
-      user.lastName = data["lastName"];
-      user.tokenAP = data["tokenAP"];
-      //   user.expire = DateTime.parse(data["expire"]);
+      user.studentId = data['ident'].toString();
+      user.token = data['token'];
+      user.firstName = data['firstName'];
+      user.lastName = data['lastName'];
+      user.tokenAP = data['tokenAP'];
+      // user.expire = DateTime.parse(data["expire"]);
     } catch (e) {
       DebugLogger().log("Login failed: $e");
       throw ApiException(statusCode: 0, message: "Login failed: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>> postWithDio(
+    String endpoint,
+    Map<String, dynamic> data,
+  ) async {
+    final url = 'https://web.spaggiari.eu/rest/v1/auth/login';
+    final response = await dio.post(
+      url,
+      data: data,
+      options: Options(
+        headers: {
+          'User-Agent': 'CVVS/std/4.2.3 iOS/17',
+          'Content-Type': 'application/json',
+          'Z-Dev-ApiKey': 'Tg1NWEwNGIgIC0K',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data as Map<String, dynamic>;
+    } else {
+      throw Exception("Request failed with status: ${response.statusCode}");
     }
   }
 
@@ -156,7 +179,8 @@ class ApiClient {
       "Content-Type": "application/json",
       //   "User-Agent": "CVVS/std/4.2.3 Android/12",
       "User-Agent": "CVVS/std/4.2.3 iOS/17",
-      "Z-Dev-ApiKey": "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
+      "Z-Dev-ApiKey":
+          "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
     };
 
     if (kDebugMode) {
