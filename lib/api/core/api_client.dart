@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:registrov2/api/core/api_exception.dart';
+import 'package:registrov2/api/models/LessonsModel.dart';
 import 'package:registrov2/api/models/UserModel.dart';
 import 'package:registrov2/utils/debugLogger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,110 +32,52 @@ class ApiClient {
     return UserModel.fromJson(userMap);
   }
 
-  Future<Map<String, dynamic>> get(String endpoint) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: _headers(),
-    );
-
-    return _handleResponse(response);
-  }
-
-  Future<Map<String, dynamic>> post(
-    String endpoint,
-    Map<String, dynamic> body,
-  ) async {
-    try {
-      return await _sendRequest("POST", endpoint, body);
-    } on ApiException catch (e) {
-      if (e.statusCode == 401 && await _tryAutoLogin()) {
-        return await _sendRequest("POST", endpoint, body);
-      }
-      rethrow;
-    }
-  }
-
   Future<Map<String, dynamic>> _sendRequest(
     String method,
     String endpoint,
     Map<String, dynamic>? body,
   ) async {
-    final url = Uri.parse('$baseUrl$endpoint');
+    final String url;
 
-    http.Response response;
+    if (endpoint.contains("auth")) {
+      url = '$baseUrl$endpoint';
+    } else {
+      String userID = user.studentId!.substring(1);
+      url = '$baseUrl/students/$userID/$endpoint';
+    }
+
     final headers = _headers();
 
-    if (method == "GET") {
-      response = await http.get(url, headers: headers);
-    } else {
-      response = await http.post(url, headers: headers, body: jsonEncode(body));
-    }
+    try {
+      late Response response;
+      final upperMethod = method.toUpperCase();
 
-    return _handleResponse(response);
-  }
-
-  Map<String, dynamic> _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) {
-        DebugLogger().log("Empty response body");
-        throw ApiException(
-          statusCode: response.statusCode,
-          message: "Empty response body",
+      if (upperMethod == "GET") {
+        response = await dio.get(url, options: Options(headers: headers));
+      } else if (upperMethod == "POST") {
+        response = await dio.post(
+          url,
+          data: body,
+          options: Options(headers: headers),
         );
+      } else {
+        throw Exception("Unsupported HTTP method: $method");
       }
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      throw ApiException(
-        statusCode: response.statusCode,
-        message: response.body,
-      );
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode ?? 0;
+      final message = e.response?.data ?? e.message;
+      throw ApiException(statusCode: statusCode, message: message.toString());
     }
   }
-
-  Future<bool> _tryAutoLogin() async {
-    // if (user.studentId != null && user.hashedPassword != null) {
-    //   try {
-    //     final data = await post("/auth/login", {
-    //       "ident": user.studentId!,
-    //       "pass": user.hashedPassword!,
-    //       "app_code": "CVVS",
-    //     });
-    //     user.token = data["token"];
-    //     user.studentId = data["ident"];
-    //     await saveSession();
-    //     return true;
-    //   } catch (_) {
-    //     return false;
-    //   }
-    // }
-    return false;
-  }
-
-  //   Future<void> login(String username, String password) async {
-  //     final response = await post("/auth/login", {
-  //       "ident": username,
-  //       "pass": password,
-  //       "app_code": "CVVS",
-  //     });
-
-  //     user.studentId = response["ident"].toString().substring(1);
-  //     user.token = response["token"];
-  //     user.firstName = response["firstName"];
-  //     user.lastName = response["lastName"];
-  //     user.tokenAP = response["tokenAP"];
-  //     user.expire = DateTime.parse(response["expire"]);
-
-  //     DebugLogger().log(response.toString());
-
-  //     await saveSession();
-  //   }
 
   Future<void> login(String username, String password) async {
     try {
-      final data = await postWithDio('/auth/login', {
-        'ident': username,
-        'pass': password,
-        'app_code': 'CVVS',
+      final data = await _sendRequest("post", "auth/login", {
+        "ident": username,
+        "pass": password,
+        "app_code": "CVVS",
       });
 
       user.studentId = data['ident'].toString();
@@ -144,33 +86,11 @@ class ApiClient {
       user.lastName = data['lastName'];
       user.tokenAP = data['tokenAP'];
       // user.expire = DateTime.parse(data["expire"]);
+
+      await saveSession();
     } catch (e) {
       DebugLogger().log("Login failed: $e");
       throw ApiException(statusCode: 0, message: "Login failed: $e");
-    }
-  }
-
-  Future<Map<String, dynamic>> postWithDio(
-    String endpoint,
-    Map<String, dynamic> data,
-  ) async {
-    final url = 'https://web.spaggiari.eu/rest/v1/auth/login';
-    final response = await dio.post(
-      url,
-      data: data,
-      options: Options(
-        headers: {
-          'User-Agent': 'CVVS/std/4.2.3 iOS/17',
-          'Content-Type': 'application/json',
-          'Z-Dev-ApiKey': 'Tg1NWEwNGIgIC0K',
-        },
-      ),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data as Map<String, dynamic>;
-    } else {
-      throw Exception("Request failed with status: ${response.statusCode}");
     }
   }
 
@@ -183,14 +103,26 @@ class ApiClient {
           "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
     };
 
-    if (kDebugMode) {
-      print(headers["Z-Dev-ApiKey"]);
-    }
-
     if (user.token != null) {
       headers["Z-Auth-token"] = user.token!;
     }
 
     return headers;
+  }
+
+  Future<List<LessonModel>> fetchLessons(String date) async {
+    try {
+      final data = await _sendRequest("get", "/lessons/$date", null);
+      if (data['lessons'] is List) {
+        return (data['lessons'] as List)
+            .map((lesson) => LessonModel.fromJson(lesson))
+            .toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      DebugLogger().log("Fetch lessons failed: $e");
+      throw ApiException(statusCode: 0, message: "Fetch lessons failed: $e");
+    }
   }
 }

@@ -1,30 +1,27 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:registrov2/api/models/LessonsModel.dart';
+import 'package:registrov2/provider/clientProvider.dart';
 import 'package:registrov2/widget/headerTab.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
-class Todaypage extends StatelessWidget {
+class Todaypage extends ConsumerWidget {
   const Todaypage({super.key});
 
-  static const agenda = [
-    {
-      "ore": "8:00",
-      "title": "Matematica",
-      "description": "Lezione di matematica con il prof. Rossi",
-    },
-    {
-      "ore": "9:00",
-      "title": "Italiano",
-      "description": "Lezione di italiano con la prof.ssa Verdi",
-    },
-    {
-      "ore": "10:00",
-      "title": "Informatica",
-      "description": "Lezione di informatica con la prof.ssa Bianchi",
-    },
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    List<Map<String, dynamic>> agenda = [];
+
+    Future<void> fetchLessons() async {
+        final client = ref.watch(clientProvider);
+        final lessons = await client.fetchLessons("20250917");
+        
+        agenda = lessons.map((lesson) => lesson.toJson()).toList();
+    }
+
+    fetchLessons();
+
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
       child: SafeArea(
@@ -50,16 +47,15 @@ class Todaypage extends StatelessWidget {
                     indicatorBuilder: (_, index) => Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        agenda[index]['ore']!,
-                        style: const TextStyle(
-                          color: CupertinoColors.label,
+                        "8:00",
+                        style: TextStyle(
+                          color: CupertinoColors.label.withOpacity(0.6),
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                     contentsBuilder: (_, index) {
-                      final events = agenda;
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(
                           20.0,
@@ -70,17 +66,37 @@ class Todaypage extends StatelessWidget {
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: CupertinoColors.systemBackground,
+                            color: CupertinoColors.systemPurple.darkColor,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              events[index]['title']!,
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 10.0,
+                                  height: 10.0,
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors.systemPurple,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                SizedBox(width: 10.0),
+                                Text(
+                                  agenda[index]["subjectDesc"]
+                                          .toString()[0]
+                                          .toUpperCase() +
+                                      agenda[index]["subjectDesc"]
+                                          .toString()
+                                          .substring(1)
+                                          .toLowerCase(),
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: CupertinoColors.label,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
