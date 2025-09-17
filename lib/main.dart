@@ -27,7 +27,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   Future<void> _initializeApp() async {
     final apiClient = ref.read(clientProvider);
-    await apiClient.login("S9477262", "Rickardo@07");
+    await apiClient.login("S9477262T", "Rickardo@07");
     // final user = await apiClient.loadUser();
 
     // if (user != null) {
