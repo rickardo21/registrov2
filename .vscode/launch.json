@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "name": "registrov2",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "registrov2 (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "registrov2 (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "registrov2 (no CORS web debug)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": [
+        "--web-browser-flag=--disable-web-security",
+        "--web-browser-flag=--user-data-dir=/tmp/temp_chrome"
+      ]
+    }
+  ]
+}

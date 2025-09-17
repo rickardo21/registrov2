@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:registrov2/api/core/api_exception.dart';
 import 'package:registrov2/api/models/UserModel.dart';
@@ -107,23 +108,47 @@ class ApiClient {
     return false;
   }
 
+  //   Future<void> login(String username, String password) async {
+  //     final response = await post("/auth/login", {
+  //       "ident": username,
+  //       "pass": password,
+  //       "app_code": "CVVS",
+  //     });
+
+  //     user.studentId = response["ident"].toString().substring(1);
+  //     user.token = response["token"];
+  //     user.firstName = response["firstName"];
+  //     user.lastName = response["lastName"];
+  //     user.tokenAP = response["tokenAP"];
+  //     user.expire = DateTime.parse(response["expire"]);
+
+  //     DebugLogger().log(response.toString());
+
+  //     await saveSession();
+  //   }
+
   Future<void> login(String username, String password) async {
-    final response = await post("/auth/login", {
-      "ident": username,
-      "pass": password,
-      "app_code": "CVVS",
-    });
+    final http.Response response;
 
-    user.studentId = response["ident"].toString().substring(1);
-    user.token = response["token"];
-    user.firstName = response["firstName"];
-    user.lastName = response["lastName"];
-    user.tokenAP = response["tokenAP"];
-    user.expire = DateTime.parse(response["expire"]);
+    try {
+      final url = Uri.parse('$baseUrl/auth/login');
+      final headers = _headers();
+      final body = {"ident": username, "pass": password, "app_code": "CVVS"};
 
-    DebugLogger().log(response.toString());
+      response = await http.post(url, headers: headers, body: jsonEncode(body));
 
-    await saveSession();
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+      user.studentId = data["ident"].toString();
+      user.token = data["token"];
+      user.firstName = data["firstName"];
+      user.lastName = data["lastName"];
+      user.tokenAP = data["tokenAP"];
+      //   user.expire = DateTime.parse(data["expire"]);
+    } catch (e) {
+      DebugLogger().log("Login failed: $e");
+      throw ApiException(statusCode: 0, message: "Login failed: $e");
+    }
   }
 
   Map<String, String> _headers() {
@@ -131,9 +156,12 @@ class ApiClient {
       "Content-Type": "application/json",
       //   "User-Agent": "CVVS/std/4.2.3 Android/12",
       "User-Agent": "CVVS/std/4.2.3 iOS/17",
-      "Z-Dev-ApiKey":
-          "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
+      "Z-Dev-ApiKey": "Tg1NWEwNGIgIC0K", // API Key for authentication -- they should change every now and then so they might need changing
     };
+
+    if (kDebugMode) {
+      print(headers["Z-Dev-ApiKey"]);
+    }
 
     if (user.token != null) {
       headers["Z-Auth-token"] = user.token!;
