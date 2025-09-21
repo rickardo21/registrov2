@@ -13,13 +13,13 @@ class ApiClient {
 
   final dio = Dio();
 
-//   ApiClient({this.baseUrl = "https://web.spaggiari.eu/rest/v1"});
-  ApiClient({this.baseUrl = "https://web.spaggiari.eu/rest/v1"}) {
-    user.studentId = "S9477262T";
-    user.firstName = "Riccardo";
-    user.token =
-        "961e9bd0d61d1d24fa940eca6ceba5679gJjLc78IQzBWNU6OVvSKYsEtJqGXYnbTO3Du6qzMpKtOAWmEsTeUpd0tKri1c0wmJUFahddEo46wNBD43PXkQoSXlRyTmiMW26tbpG4BIhaSevYqzdENMeXcBanx/2eupJI+h+UTvNNP+2MmIeFrtTSXzxqLyra3831qhpJwHHf/IUh/NgGcfUqgsLphwXqCn02HdgvnXWScoDqf/1PNr6lWrc8kKt6Ldt3e4Y2Rs3C7mTtkgwtbF2hGcz3pvOZ5xxwiyyeaCpq+6AtWOFXlB+Em/ySqXJci6oo2Lf1hNHaxSSTEwHZFxbOJfxEJu7Guu2/aVylLp+/x2ln5ia7poNAZdBteq3NJC0U4W2TPaV03wSNu6dRmHBpj7HKXsx85TIY";
-  }
+  ApiClient({this.baseUrl = "https://web.spaggiari.eu/rest/v1"});
+//   ApiClient({this.baseUrl = "https://web.spaggiari.eu/rest/v1"}) {
+//     user.studentId = "S9477262T";
+//     user.firstName = "Riccardo";
+//     user.token =
+//         "961e9bd0d61d1d24fa940eca6ceba5679gJjLc78IQzBWNU6OVvSKYsEtJqGXYnbTO3Du6qzMpKtOAWmEsTeUpd0tKri1c0wmJUFahddEo46wNBD43PXkQoSXlRyTmiMW26tbpG4BIhaSevYqzdENMeXcBanx/2eupJI+h+UTvNNP+2MmIeFrtTSXzxqLyra3831qhpJwHHf/IUh/NgGcfUqgsLphwXqCn02HdgvnXWScoDqf/1PNr6lWrc8kKt6Ldt3e4Y2Rs3C7mTtkgwtbF2hGcz3pvOZ5xxwiyyeaCpq+6AtWOFXlB+Em/ySqXJci6oo2Lf1hNHaxSSTEwHZFxbOJfxEJu7Guu2/aVylLp+/x2ln5ia7poNAZdBteq3NJC0U4W2TPaV03wSNu6dRmHBpj7HKXsx85TIY";
+//   }
 
   Future<void> saveSession() async {
     final prefs = await SharedPreferences.getInstance();
